@@ -1,0 +1,98 @@
+import java.util.Arrays;
+
+public class BankersAlgorithm
+{
+    private int numberOfProcesses;
+    private int numberOfResources;
+    private int[][] allocationMatrix;
+    private int[][] maxMatrix;
+    private int[] availableResources;
+
+    public BankersAlgorithm(int numberOfProcesses, int numberOfResources, int[][] allocationMatrix, int[][] maxMatrix) 
+{
+        this.numberOfProcesses = numberOfProcesses;
+        this.numberOfResources = numberOfResources;
+        this.allocationMatrix = allocationMatrix;
+        this.maxMatrix = maxMatrix;
+        this.availableResources = new int[numberOfResources];
+        Arrays.fill(availableResources, Integer.MAX_VALUE);
+}
+
+    public boolean isAvailable(int[] work, int process) {
+        for (int i = 0; i < numberOfResources; i++) {
+            if (work[i] > availableResources[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean isSafe() {
+        int[] work = new int[numberOfResources];
+        boolean[] finish = new boolean[numberOfProcesses];
+        int count = 0;
+
+        while (count < numberOfProcesses) {
+            boolean found = false;
+
+            for (int i = 0; i < numberOfProcesses; i++) {
+                if (!finish[i]) {
+                    int[] request = allocationMatrix[i];
+                    boolean isAvailable = true;
+
+                    for (int j = 0; j < numberOfResources; j++) {
+                        if (work[j] + request[j] > availableResources[j]) {
+                            isAvailable = false;
+                            break;
+                        }
+                    }
+
+                    if (isAvailable) {
+                        for (int j = 0; j < numberOfResources; j++) {
+                            work[j] += request[j];
+                        }
+                        finish[i] = true;
+                        found = true;
+                        count++;
+                        break;
+                    }
+                }
+            }
+
+            if (!found) {
+                return false;
+            }
+        }
+
+        return true;  // All processes have been executed safely
+    }
+
+    public static void main(String[] args) {
+        int numberOfProcesses = 5;
+        int numberOfResources = 3;
+
+        int[][] allocationMatrix = {
+            {0, 1, 0},
+            {2, 0, 0},
+            {3, 0, 2},
+            {2, 1, 1},
+            {0, 0, 2}
+        };
+
+        int[][] maxMatrix = {
+            {7, 5, 3},
+            {3, 2, 2},
+            {9, 0, 2},
+            {2, 2, 2},
+            {4, 3, 3}
+        };
+
+        BankersAlgorithm bankersAlgorithm = new BankersAlgorithm(numberOfProcesses, numberOfResources, allocationMatrix, maxMatrix);
+
+        if (bankersAlgorithm.isSafe()) {
+            System.out.println("System is in a safe state.");
+        } else {
+            System.out.println("System is in an unsafe state.");
+        }
+    }
+}
